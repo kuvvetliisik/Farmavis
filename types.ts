@@ -28,6 +28,7 @@ export enum ProductCategory {
 
 export interface CompanyInfo {
   name: string;
+  logoUrl: string; // Yeni: Logo URL
   slogan: string;
   address: string;
   phone: string;

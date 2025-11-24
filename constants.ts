@@ -2,13 +2,14 @@
 import { CompanyInfo, Product, ProductCategory, Brand } from './types';
 
 export const COMPANY_INFO: CompanyInfo = {
-  name: "MedicoCore",
-  slogan: "Sağlık ve Bakımda Güvenilir Çözümler",
+  name: "Farmavis",
+  logoUrl: "", // Başlangıçta boş, adminden yüklenecek
+  slogan: "Sağlık & Kozmetik Ürünleri",
   address: "İkitelli OSB, Enco Plaza, Başakşehir, İstanbul",
   phone: "+90 212 555 01 99",
-  email: "info@medicocore.com.tr",
+  email: "info@farmavis.com.tr",
   whatsapp: "+905551234567",
-  aboutShort: "MedicoCore, kişisel bakım, anne-bebek ve medikal ürünler alanında Türkiye'nin en köklü markalarını bünyesinde barındıran, kalite ve güven odaklı bir kuruluştur.",
+  aboutShort: "Farmavis, kişisel bakım, anne-bebek ve medikal ürünler alanında Türkiye'nin en köklü markalarını bünyesinde barındıran, kalite ve güven odaklı bir kuruluştur.",
   mission: "Tüketicilerimizin yaşam kalitesini artıran, cilde ve doğaya dost, ulaşılabilir ve yüksek standartlı ürünler sunmak.",
   vision: "Temsil ettiğimiz köklü markalarla global pazarda yenilikçi ve lider konumumuzu sürdürmek."
 };

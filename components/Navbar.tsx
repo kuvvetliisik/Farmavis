@@ -2,13 +2,12 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Hexagon, ChevronDown } from 'lucide-react';
-import { COMPANY_INFO } from '../constants';
 import { useProducts } from '../context/ProductContext';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const { brands } = useProducts();
+  const { brands, companyInfo } = useProducts();
 
   const isActive = (path: string) => {
     if (path === '/' && location.pathname !== '/') return false;
@@ -25,13 +24,25 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between h-24">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center gap-2 group">
-              <Hexagon className="h-9 w-9 text-primary-600 group-hover:rotate-90 transition-transform duration-500" />
-              <div className="flex flex-col">
-                <span className="font-bold text-2xl tracking-tight text-slate-900 leading-none">
-                  {COMPANY_INFO.name}
-                </span>
-                <span className="text-[10px] text-slate-500 tracking-widest uppercase">Kurumsal</span>
-              </div>
+              {companyInfo.logoUrl ? (
+                // Eğer admin panelinden logo yüklendiyse bunu göster
+                <img 
+                  src={companyInfo.logoUrl} 
+                  alt={companyInfo.name} 
+                  className="h-16 w-auto object-contain"
+                />
+              ) : (
+                // Logo yoksa varsayılan ikon ve yazı göster
+                <>
+                  <Hexagon className="h-9 w-9 text-primary-600 group-hover:rotate-90 transition-transform duration-500" />
+                  <div className="flex flex-col">
+                    <span className="font-bold text-2xl tracking-tight text-slate-900 leading-none">
+                      {companyInfo.name}
+                    </span>
+                    <span className="text-[10px] text-slate-500 tracking-widest uppercase">Kurumsal</span>
+                  </div>
+                </>
+              )}
             </Link>
           </div>
           
@@ -81,7 +92,7 @@ const Navbar: React.FC = () => {
                         to={`/urunler?marka=${brand.id}`}
                         className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors group/brand"
                       >
-                        {/* Logo Container - Increased Size */}
+                        {/* Logo Container - Cleaned up */}
                         <div className="w-24 h-14 flex items-center justify-center shrink-0">
                           <img 
                             src={brand.logoUrl} 
@@ -90,9 +101,6 @@ const Navbar: React.FC = () => {
                             onError={(e) => handleImageError(e, brand.name)}
                           />
                         </div>
-                        <span className="text-sm text-slate-600 group-hover/brand:text-primary-700 font-medium truncate">
-                          {brand.name}
-                        </span>
                       </Link>
                     ))}
                   </div>

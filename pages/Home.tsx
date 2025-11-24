@@ -3,16 +3,15 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle, BookOpen } from 'lucide-react';
 import Button from '../components/Button';
-import { COMPANY_INFO } from '../constants';
 import { useProducts } from '../context/ProductContext';
 
 const Home: React.FC = () => {
-  const { products, brands } = useProducts();
+  const { products, brands, companyInfo } = useProducts();
   const featuredProducts = products.filter(p => p.isFeatured).slice(0, 4);
 
   useEffect(() => {
-    document.title = "Anasayfa | MedicoCore - Profesyonel Medikal Çözümler";
-  }, []);
+    document.title = `Anasayfa | ${companyInfo.name} - Sağlık ve Kozmetik Çözümleri`;
+  }, [companyInfo]);
 
   const BLOG_POSTS = [
     {
@@ -63,7 +62,7 @@ const Home: React.FC = () => {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 lg:py-40">
           <div className="max-w-2xl">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-tight mb-6">
-              {COMPANY_INFO.slogan}
+              {companyInfo.slogan}
             </h1>
             <p className="text-lg md:text-xl text-slate-300 mb-8 leading-relaxed">
               Bilim ve doğanın mükemmel uyumuyla geliştirilen profesyonel çözümlerimizi keşfedin.
@@ -134,8 +133,6 @@ const Home: React.FC = () => {
                   className="bg-white rounded-lg shadow-sm border border-slate-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col h-full"
                 >
                   <div className="aspect-[4/4] bg-white p-4 relative overflow-hidden flex items-center justify-center">
-                    {/* Brand Logo on Card (Removed Box) */}
-                    
                     <img 
                       src={product.imageUrl} 
                       alt={product.name} 

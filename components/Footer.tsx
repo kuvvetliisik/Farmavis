@@ -1,13 +1,14 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { COMPANY_INFO } from '../constants';
+import { useProducts } from '../context/ProductContext';
 import { Phone, Mail, MapPin, Shield, ArrowRight } from 'lucide-react';
 import Button from './Button';
 
 const Footer: React.FC = () => {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const { companyInfo } = useProducts();
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,9 +28,9 @@ const Footer: React.FC = () => {
           
           {/* Company Info */}
           <div className="col-span-1">
-            <span className="font-bold text-2xl text-white tracking-tight">{COMPANY_INFO.name}</span>
+            <span className="font-bold text-2xl text-white tracking-tight">{companyInfo.name}</span>
             <p className="mt-4 text-sm text-slate-400 leading-relaxed">
-              {COMPANY_INFO.aboutShort}
+              {companyInfo.aboutShort}
             </p>
           </div>
 
@@ -75,15 +76,15 @@ const Footer: React.FC = () => {
             <ul className="space-y-3">
               <li className="flex items-start gap-3 text-sm">
                 <MapPin className="h-5 w-5 text-primary-500 shrink-0" />
-                <span>{COMPANY_INFO.address}</span>
+                <span>{companyInfo.address}</span>
               </li>
               <li className="flex items-center gap-3 text-sm">
                 <Phone className="h-5 w-5 text-primary-500 shrink-0" />
-                <span>{COMPANY_INFO.phone}</span>
+                <span>{companyInfo.phone}</span>
               </li>
               <li className="flex items-center gap-3 text-sm">
                 <Mail className="h-5 w-5 text-primary-500 shrink-0" />
-                <span>{COMPANY_INFO.email}</span>
+                <span>{companyInfo.email}</span>
               </li>
             </ul>
           </div>
@@ -91,7 +92,7 @@ const Footer: React.FC = () => {
         
         <div className="mt-12 pt-8 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="text-xs text-slate-500">
-            &copy; {new Date().getFullYear()} {COMPANY_INFO.name}. Tüm hakları saklıdır.
+            &copy; {new Date().getFullYear()} {companyInfo.name}. Tüm hakları saklıdır.
           </div>
           <Link to="/admin" className="text-xs text-slate-700 hover:text-slate-500 flex items-center gap-1">
             <Shield className="h-3 w-3" /> Admin

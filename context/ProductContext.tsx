@@ -1,11 +1,12 @@
 
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import { Product, Brand } from '../types';
-import { PRODUCTS as DEFAULT_PRODUCTS, BRANDS as DEFAULT_BRANDS } from '../constants';
+import { Product, Brand, CompanyInfo } from '../types';
+import { PRODUCTS as DEFAULT_PRODUCTS, BRANDS as DEFAULT_BRANDS, COMPANY_INFO as DEFAULT_COMPANY_INFO } from '../constants';
 
 interface ProductContextType {
   products: Product[];
   brands: Brand[];
+  companyInfo: CompanyInfo;
   addProduct: (product: Product) => void;
   updateProduct: (product: Product) => void;
   deleteProduct: (id: string) => void;
@@ -14,6 +15,8 @@ interface ProductContextType {
   addBrand: (brand: Brand) => void;
   updateBrand: (brand: Brand) => void;
   deleteBrand: (id: string) => void;
+  // Company Actions
+  updateCompanyInfo: (info: CompanyInfo) => void;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -21,6 +24,7 @@ const ProductContext = createContext<ProductContextType | undefined>(undefined);
 export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo>(DEFAULT_COMPANY_INFO);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Uygulama açıldığında LocalStorage'dan veriyi çek
@@ -51,6 +55,19 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
       setBrands(DEFAULT_BRANDS);
     }
 
+    // Load Company Info
+    const storedCompany = localStorage.getItem('medico_company');
+    if (storedCompany) {
+       try {
+         setCompanyInfo(JSON.parse(storedCompany));
+       } catch (e) {
+         console.error("Şirket veri okuma hatası", e);
+         setCompanyInfo(DEFAULT_COMPANY_INFO);
+       }
+    } else {
+      setCompanyInfo(DEFAULT_COMPANY_INFO);
+    }
+
     setIsLoaded(true);
   }, []);
 
@@ -72,10 +89,19 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
         localStorage.setItem('medico_brands', JSON.stringify(brands));
       } catch (e) {
         console.error("LocalStorage Kotası Doldu (Markalar)", e);
-        alert("Hafıza doldu! Lütfen bazı markaları silin.");
       }
     }
   }, [brands, isLoaded]);
+
+  useEffect(() => {
+    if (isLoaded) {
+      try {
+        localStorage.setItem('medico_company', JSON.stringify(companyInfo));
+      } catch (e) {
+        console.error("Şirket bilgisi kaydedilemedi", e);
+      }
+    }
+  }, [companyInfo, isLoaded]);
 
   // Product Actions
   const addProduct = (newProduct: Product) => {
@@ -107,6 +133,11 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     setBrands(prev => prev.filter(b => b.id !== id));
   };
 
+  // Company Actions
+  const updateCompanyInfo = (info: CompanyInfo) => {
+    setCompanyInfo(info);
+  };
+
   if (!isLoaded) {
     return null;
   }
@@ -115,13 +146,15 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     <ProductContext.Provider value={{ 
       products, 
       brands,
+      companyInfo,
       addProduct, 
       updateProduct, 
       deleteProduct, 
       getProductById,
       addBrand,
       updateBrand,
-      deleteBrand
+      deleteBrand,
+      updateCompanyInfo
     }}>
       {children}
     </ProductContext.Provider>

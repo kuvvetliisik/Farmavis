@@ -1,9 +1,9 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useProducts } from '../context/ProductContext';
 import { Product, ProductCategory, Brand } from '../types';
 import Button from '../components/Button';
-import { Trash2, Edit, Plus, X, Save, Lock, Upload, Image as ImageIcon, LayoutGrid, Tag } from 'lucide-react';
+import { Trash2, Edit, Plus, X, Save, Lock, Upload, Image as ImageIcon, LayoutGrid, Tag, Settings } from 'lucide-react';
 
 // Helper: Resize and Compress Image to avoid LocalStorage overflow
 const processImage = (file: File): Promise<string> => {
@@ -49,10 +49,11 @@ const processImage = (file: File): Promise<string> => {
 const Admin: React.FC = () => {
   const { 
     products, addProduct, updateProduct, deleteProduct,
-    brands, addBrand, updateBrand, deleteBrand
+    brands, addBrand, updateBrand, deleteBrand,
+    companyInfo, updateCompanyInfo
   } = useProducts();
   
-  const [activeTab, setActiveTab] = useState<'products' | 'brands'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'brands' | 'settings'>('products');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   
@@ -63,6 +64,13 @@ const Admin: React.FC = () => {
   // --- Brand Form State ---
   const [isEditingBrand, setIsEditingBrand] = useState(false);
   const [brandForm, setBrandForm] = useState<Brand | null>(null);
+
+  // --- Company Settings State ---
+  const [settingsForm, setSettingsForm] = useState(companyInfo);
+
+  useEffect(() => {
+    setSettingsForm(companyInfo);
+  }, [companyInfo]);
 
   // File Input Refs
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -78,7 +86,7 @@ const Admin: React.FC = () => {
   };
 
   // --- Image Upload Handler ---
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, target: 'product' | 'brand') => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, target: 'product' | 'brand' | 'company') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -89,6 +97,8 @@ const Admin: React.FC = () => {
         setProductForm({ ...productForm, imageUrl: base64Image });
       } else if (target === 'brand' && brandForm) {
         setBrandForm({ ...brandForm, logoUrl: base64Image });
+      } else if (target === 'company') {
+        setSettingsForm({ ...settingsForm, logoUrl: base64Image });
       }
     } catch (error) {
       console.error("Resim işleme hatası", error);
@@ -177,6 +187,13 @@ const Admin: React.FC = () => {
     if (window.confirm('Bu markayı silmek istediğinize emin misiniz?')) deleteBrand(id);
   };
 
+  // --- Settings Handler ---
+  const saveSettings = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateCompanyInfo(settingsForm);
+    alert('Ayarlar kaydedildi!');
+  };
+
 
   if (!isAuthenticated) {
     return (
@@ -227,6 +244,14 @@ const Admin: React.FC = () => {
               }`}
             >
               <Tag className="w-4 h-4" /> Markalar
+            </button>
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`px-4 py-2 text-sm font-medium rounded-md flex items-center gap-2 transition-all ${
+                activeTab === 'settings' ? 'bg-primary-50 text-primary-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              <Settings className="w-4 h-4" /> Genel Ayarlar
             </button>
           </div>
         </div>
@@ -309,6 +334,68 @@ const Admin: React.FC = () => {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* --- SETTINGS TAB CONTENT --- */}
+        {activeTab === 'settings' && (
+          <div className="max-w-2xl mx-auto">
+             <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-200">
+               <h2 className="text-xl font-bold text-slate-900 mb-6">Firma Bilgileri & Logo</h2>
+               <form onSubmit={saveSettings} className="space-y-6">
+                 
+                 {/* Main Logo Upload */}
+                 <div className="flex justify-center">
+                   <div className="text-center w-full">
+                     <label className="block text-sm font-bold text-slate-700 mb-2">Firma Logosu (Sol Üst Köşe)</label>
+                     <div className="h-40 w-full bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                        {settingsForm.logoUrl ? (
+                          <img src={settingsForm.logoUrl} className="h-full object-contain p-4" alt="Company Logo" />
+                        ) : (
+                          <div className="text-slate-400 flex flex-col items-center">
+                            <Upload className="w-8 h-8 mb-2" />
+                            <span className="text-xs">Logo Yükle (PNG Önerilir)</span>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span className="text-white text-xs font-medium">Logoyu Değiştir</span>
+                        </div>
+                     </div>
+                     <input 
+                        type="file" 
+                        ref={fileInputRef} 
+                        className="hidden" 
+                        accept="image/*" 
+                        onChange={(e) => handleImageUpload(e, 'company')}
+                     />
+                   </div>
+                 </div>
+
+                 <div>
+                   <label className="block text-sm font-bold text-slate-700 mb-1">Firma Adı</label>
+                   <input type="text" value={settingsForm.name} onChange={e => setSettingsForm({...settingsForm, name: e.target.value})} className="w-full border rounded p-2" />
+                 </div>
+
+                 <div>
+                   <label className="block text-sm font-bold text-slate-700 mb-1">Slogan</label>
+                   <input type="text" value={settingsForm.slogan} onChange={e => setSettingsForm({...settingsForm, slogan: e.target.value})} className="w-full border rounded p-2" />
+                 </div>
+
+                 <div>
+                   <label className="block text-sm font-bold text-slate-700 mb-1">E-Posta</label>
+                   <input type="text" value={settingsForm.email} onChange={e => setSettingsForm({...settingsForm, email: e.target.value})} className="w-full border rounded p-2" />
+                 </div>
+                 
+                 <div>
+                   <label className="block text-sm font-bold text-slate-700 mb-1">Telefon</label>
+                   <input type="text" value={settingsForm.phone} onChange={e => setSettingsForm({...settingsForm, phone: e.target.value})} className="w-full border rounded p-2" />
+                 </div>
+
+                 <div className="flex justify-end pt-4">
+                    <Button type="submit" className="gap-2"><Save className="w-4 h-4" /> Ayarları Kaydet</Button>
+                 </div>
+               </form>
+             </div>
           </div>
         )}
 
